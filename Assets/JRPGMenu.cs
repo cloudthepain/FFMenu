@@ -93,22 +93,40 @@ public class JRPGMenu : MonoBehaviour
 		}
 	}
 
+	void GenerateOptionsList(List<string> list, VisualElement target)
+	{
+		for (int i = 0; i < list.Count; i++)
+		{
+			//Local Variable made to address error condition with lambda where value was not being properly assigned.
+			var skill = list[i];
+			var button = new UnityEngine.UIElements.Button();
+			button.text = list[i];
+			button.clicked += () => Debug.Log("Button Pressed");
+			button.AddToClassList("submenubutton");
+			target.Add(button);
+		}
+	}
+
 	void CreateSubMenu(VisualElement ele)
 	{
+		for(int i = 0; i < 30; i++)
+		{
+			menuOptions.Add($"{i}");
+		}
 		menuOptions.Add("Attack");
 		menuOptions.Add("Magic");
 		menuOptions.Add("Item");
 		Debug.Log("Menu Created");
 		var subMenuContainer = Create("submenucontainer");
 		
-		var submenu = new ScrollView(ScrollViewMode.VerticalAndHorizontal);
-		submenu.contentContainer.style.flexDirection = FlexDirection.Row;
-
+		var submenu = new ScrollView(ScrollViewMode.Horizontal);
+		submenu.contentContainer.AddToClassList("submenu-content");
 		submenu.AddToClassList("submenu");
 
 		subMenuContainer.Add(submenu);
-		
-		GenerateMenuList(menuOptions, submenu);
+
+		GenerateOptionsList(menuOptions, submenu);
+
 		document.rootVisualElement.Add(subMenuContainer);
 		subMenuContainer.Add(submenu);
 
