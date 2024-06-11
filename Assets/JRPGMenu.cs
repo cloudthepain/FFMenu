@@ -4,18 +4,20 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System;
+using UnityEngine.UI;
 
 public class JRPGMenu : MonoBehaviour
 {
 	[SerializeField] private UIDocument document;
 	[SerializeField] private StyleSheet styles;
 
-	List<Skill> menuOptions = new List<Skill>();
+	List<string> menuOptions = new List<string>();
 
 	private void Start()
 	{
-		menuOptions.Add(new Skill("Alpha"));
-		menuOptions.Add(new Skill("Beta"));
+		menuOptions.Add("Attack");
+		menuOptions.Add("Magic");
+		menuOptions.Add("Item");
 		StartCoroutine(Generate());
 	}
 
@@ -41,7 +43,7 @@ public class JRPGMenu : MonoBehaviour
 		root.Add(menuContainer);
 		menuContainer.Add(leftButtonContainer);
 		menuContainer.Add(rightmenuContainer);
-		GenerateList(menuOptions, leftButtonContainer);
+		GenerateMenuList(menuOptions, leftButtonContainer);
 		//GenerateList(menuOptions, rightmenuContainer);
 
 	}
@@ -64,37 +66,65 @@ public class JRPGMenu : MonoBehaviour
 		return element;
 	}
 
-	void GenerateList(List<Skill> list, VisualElement target)
+	void GenerateSkill(List<Skill> list, VisualElement target)
 	{
 		for (int i = 0; i < list.Count; i++)
-		{;
-			var button = Create<Button>(list[i].skillName);
-			button.clicked += () => list[i].ActionSkill();
-			
-			button.text = list[i].skillName;
+		{
+			//Local Variable made to address error condition with lambda where value was not being properly assigned.
+			var skill = list[i];
+			var button = Create<UnityEngine.UIElements.Button>(skill.skillName);
+			button.text = skill.skillName;
+			button.clicked += () => skill.ActionSkill();
+			target.Add(button);
+		}
+	}
+
+	void GenerateMenuList(List<string> list, VisualElement target)
+	{
+		for (int i = 0; i < list.Count; i++)
+		{
+			//Local Variable made to address error condition with lambda where value was not being properly assigned.
+			var skill = list[i];
+			var button = new UnityEngine.UIElements.Button();
+			button.text = list[i];
+			button.clicked += () => CreateSubMenu(target);
+			button.AddToClassList("submenubutton");
 			target.Add(button);
 		}
 	}
 
 	void CreateSubMenu(VisualElement ele)
 	{
-		Debug.Log("SubmenuCreated");
+		menuOptions.Add("Attack");
+		menuOptions.Add("Magic");
+		menuOptions.Add("Item");
+		Debug.Log("Menu Created");
+		var subMenuContainer = Create("submenucontainer");
+		
+		var submenu = new ScrollView(ScrollViewMode.VerticalAndHorizontal);
+		submenu.contentContainer.style.flexDirection = FlexDirection.Row;
+
+		submenu.AddToClassList("submenu");
+
+		subMenuContainer.Add(submenu);
+		
+		GenerateMenuList(menuOptions, submenu);
+		document.rootVisualElement.Add(subMenuContainer);
+		subMenuContainer.Add(submenu);
+
 	}
 }
 
 public class Skill
 {
-	public Action aSkillToBeUsed;
-
 	public string skillName;
 
 	public Skill(string skill) {
-		aSkillToBeUsed += ActionSkill;
 		skillName = skill;
 	}
 
 	public void ActionSkill()
 	{
-		Debug.Log($"Skill ${skillName}");
+		Debug.Log($"Skill {skillName}");
 	}	
 }
