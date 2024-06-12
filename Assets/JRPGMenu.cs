@@ -119,16 +119,16 @@ public class JRPGMenu : MonoBehaviour
 		Debug.Log("Menu Created");
 		var subMenuContainer = Create("submenucontainer");
 		
-		var submenu = new ScrollView(ScrollViewMode.Horizontal);
-		submenu.contentContainer.AddToClassList("submenu-content");
-		submenu.AddToClassList("submenu");
+		var scrollMenu = new ScrollView(ScrollViewMode.Horizontal);
+		scrollMenu.contentContainer.AddToClassList("scroll-menu-content");
+		scrollMenu.AddToClassList("scroll-menu");
+		scrollMenu.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
 
-		subMenuContainer.Add(submenu);
+		subMenuContainer.Add(scrollMenu);
 
-		GenerateOptionsList(menuOptions, submenu);
+		GenerateOptionsList(menuOptions, scrollMenu);
 
 		document.rootVisualElement.Add(subMenuContainer);
-		subMenuContainer.Add(submenu);
 
 	}
 }
