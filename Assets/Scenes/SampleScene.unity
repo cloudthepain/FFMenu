@@ -277,6 +277,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   document: {fileID: 1186462757}
   styles: {fileID: 7433441132597879392, guid: f59f8fb21bd4f3746a426451a4f8f300, type: 3}
+  selectorSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

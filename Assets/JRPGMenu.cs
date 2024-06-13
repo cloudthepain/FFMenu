@@ -5,11 +5,13 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class JRPGMenu : MonoBehaviour
 {
 	[SerializeField] private UIDocument document;
 	[SerializeField] private StyleSheet styles;
+	[SerializeField] public Sprite selectorSprite;
 
 	List<string> menuOptions = new List<string>();
 
@@ -19,6 +21,7 @@ public class JRPGMenu : MonoBehaviour
 		menuOptions.Add("Magic");
 		menuOptions.Add("Item");
 		StartCoroutine(Generate());
+
 	}
 
 	private void OnValidate()
@@ -44,7 +47,8 @@ public class JRPGMenu : MonoBehaviour
 		menuContainer.Add(leftButtonContainer);
 		menuContainer.Add(rightmenuContainer);
 		GenerateMenuList(menuOptions, leftButtonContainer);
-		//GenerateList(menuOptions, rightmenuContainer);
+
+		CreateButton();
 
 	}
 
@@ -125,11 +129,28 @@ public class JRPGMenu : MonoBehaviour
 		scrollMenu.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
 
 		subMenuContainer.Add(scrollMenu);
-
 		GenerateOptionsList(menuOptions, scrollMenu);
 
 		document.rootVisualElement.Add(subMenuContainer);
 
+	}
+
+	void CreateButton()
+	{
+		var newContainer = Create("buttonContainer");
+		var newButton = new UnityEngine.UIElements.Button();
+		newButton.text = "here I am";
+		newButton.clicked += () => Debug.Log("Button Pressed");
+		newButton.AddToClassList("submenubutton");
+		var selector = new UnityEngine.UIElements.Image();
+		selector.AddToClassList("button-selector-bullet");
+		selector.sprite = selectorSprite;
+
+		newContainer.Add(selector);
+		newContainer.Add(newButton);
+
+
+		document.rootVisualElement.Add(newContainer);
 	}
 }
 

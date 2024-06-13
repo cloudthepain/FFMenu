@@ -35,7 +35,8 @@
 	height: 60%;
 }
 
-.scroll-menu{
+.scroll-menu
+{
 	background-color: rgb(0,50,175);
 	padding: 15px;
 	flex-direction: column;
@@ -44,10 +45,12 @@
 	border-color:  rgb(255,255,255);
 }
 
-.scroll-menu-content{
+.scroll-menu-content
+{
 	flex-wrap: wrap;
 	flex-direction: column;
 }
+
 
 .submenubutton
 {
@@ -56,5 +59,30 @@
 	background-color: rgba(255,255,255,0.0);
 	border-color: rgba(255,255,255,0.0);
 	color: white;
+	flex-grow: 1;
+}
+
+
+.buttonContainer:hover .button-selector-bullet;
+{
+	background-color: rgb(50, 168, 82);
+	visibility: visible;
+}
+
+.button-selector-bullet
+{
+	visibility: hidden;
+}
+
+
+
+.buttonContainer
+{
+	background-color: rgb(128,128,128);
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	width: 50%;
+	flex-direction: row;
 }
 
