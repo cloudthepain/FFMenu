@@ -47,9 +47,6 @@ public class JRPGMenu : MonoBehaviour
 		menuContainer.Add(leftButtonContainer);
 		menuContainer.Add(rightmenuContainer);
 		GenerateMenuList(menuOptions, leftButtonContainer);
-
-		CreateButton();
-
 	}
 
 
@@ -70,19 +67,6 @@ public class JRPGMenu : MonoBehaviour
 		return element;
 	}
 
-	void GenerateSkill(List<Skill> list, VisualElement target)
-	{
-		for (int i = 0; i < list.Count; i++)
-		{
-			//Local Variable made to address error condition with lambda where value was not being properly assigned.
-			var skill = list[i];
-			var button = Create<UnityEngine.UIElements.Button>(skill.skillName);
-			button.text = skill.skillName;
-			button.clicked += () => skill.ActionSkill();
-			target.Add(button);
-		}
-	}
-
 	void GenerateMenuList(List<string> list, VisualElement target)
 	{
 		for (int i = 0; i < list.Count; i++)
@@ -97,18 +81,35 @@ public class JRPGMenu : MonoBehaviour
 		}
 	}
 
+
 	void GenerateOptionsList(List<string> list, VisualElement target)
 	{
 		for (int i = 0; i < list.Count; i++)
 		{
 			//Local Variable made to address error condition with lambda where value was not being properly assigned.
 			var skill = list[i];
-			var button = new UnityEngine.UIElements.Button();
-			button.text = list[i];
-			button.clicked += () => Debug.Log("Button Pressed");
-			button.AddToClassList("submenubutton");
-			target.Add(button);
+
+			CreateButton(list[i], target);
 		}
+	}
+
+	void CreateButton(string data, VisualElement target)
+	{
+		var newContainer = Create("buttonContainer");
+		
+		var newButton = new UnityEngine.UIElements.Button();
+		newButton.text = data;
+		newButton.clicked += () => Debug.Log("Button Pressed");
+		newButton.AddToClassList("submenubutton");
+		
+		var selector = new UnityEngine.UIElements.Image();
+		selector.AddToClassList("button-selector-bullet");
+		selector.sprite = selectorSprite;
+
+		newContainer.Add(selector);
+		newContainer.Add(newButton);
+
+		target.Add(newContainer);
 	}
 
 	void CreateSubMenu(VisualElement ele)
@@ -135,23 +136,6 @@ public class JRPGMenu : MonoBehaviour
 
 	}
 
-	void CreateButton()
-	{
-		var newContainer = Create("buttonContainer");
-		var newButton = new UnityEngine.UIElements.Button();
-		newButton.text = "here I am";
-		newButton.clicked += () => Debug.Log("Button Pressed");
-		newButton.AddToClassList("submenubutton");
-		var selector = new UnityEngine.UIElements.Image();
-		selector.AddToClassList("button-selector-bullet");
-		selector.sprite = selectorSprite;
-
-		newContainer.Add(selector);
-		newContainer.Add(newButton);
-
-
-		document.rootVisualElement.Add(newContainer);
-	}
 }
 
 public class Skill
