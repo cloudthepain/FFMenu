@@ -93,6 +93,10 @@ public class JRPGMenu : MonoBehaviour
 
 	void GenerateCharaterList(List<string> list, VisualElement target)
 	{
+		var characterlistlabel = new UnityEngine.UIElements.Label();
+		characterlistlabel.text = "chars";
+		characterlistlabel.AddToClassList("character-list-label");
+		target.Add(characterlistlabel);
 		for(int i = 0; i < list.Count;i++)
 		{
 			var character = list[i];
@@ -192,29 +196,36 @@ public class JRPGMenu : MonoBehaviour
 
 		for (int i = 0; i < 3; i++)
 		{
+			var healthbarcontainer = Create("health-bar-container");
+			healthcontainer.Add(healthbarcontainer);
+
+			var manabarcontainer = Create("mana-bar-container");
+			manacontainer.Add(manabarcontainer);
+
 			var healthbarnumber = new UnityEngine.UIElements.Label();
 			healthbarnumber.AddToClassList("health-bar-number");
 			var manabarnumber = new UnityEngine.UIElements.Label();
 			manabarnumber.AddToClassList("health-bar-number");
-			healthcontainer.Add(healthbarnumber);
+			healthbarcontainer.Add(healthbarnumber);
 
 			var healthbar = new UnityEngine.UIElements.ProgressBar();
 			healthbar.AddToClassList("healthbar");
 			healthbar.value = 100;
 			healthbarnumber.text = $"{healthbar.value.ToString()} / {healthbar.value.ToString()}";
-			healthcontainer.Add(healthbar);
+			healthbarcontainer.Add(healthbar);
 
-			manacontainer.Add(manabarnumber);
+			manabarcontainer.Add(manabarnumber);
 			var manabar = new UnityEngine.UIElements.ProgressBar();
 
-			manacontainer.Add(manabar);
+			manabarcontainer.Add(manabar);
 			manabar.value = 100;
 			manabarnumber.text = $"{manabar.value.ToString()} / {manabar.value.ToString()}";
 			manabar.AddToClassList("healthbar");
 
-			target.Add(healthcontainer);
-			target.Add(manacontainer);
 		}
+
+		target.Add(healthcontainer);
+		target.Add(manacontainer);
 	}
 
 }

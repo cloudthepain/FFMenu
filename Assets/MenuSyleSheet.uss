@@ -124,3 +124,15 @@
 	flex-shrink: 1;
 	font-size: 10px;
 }
+
+.character-list-label
+{
+	color: white;
+}
+
+.character-button
+{
+	background-color: rgba(0,0,0,0);
+	border-color: rgba(0,0,0,0);
+	color: white;
+}
