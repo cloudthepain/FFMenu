@@ -14,18 +14,12 @@ public class JRPGMenu : MonoBehaviour
 	[SerializeField] public Sprite selectorSprite;
 
 	List<string> menuOptions = new List<string>();
-	List<string> characterlist = new List<string>();
+	List<Character> characterlist = new List<Character>();
 
 	private void Start()
 	{
-		menuOptions.Add("Attack");
-		menuOptions.Add("Magic");
-		menuOptions.Add("Item");
-
-		characterlist.Add("Cloud");
-		characterlist.Add("Cloud");
-		characterlist.Add("Cloud");
-
+		characterlist.Add(new Character("Steven"));
+		characterlist.Add(new Character("Baron"));
 		StartCoroutine(Generate());
 
 	}
@@ -50,13 +44,12 @@ public class JRPGMenu : MonoBehaviour
 		var leftButtonContainer = Create("left-button-container");
 		var rightmenuContainer = Create("right-menu-container");
 		root.Add(menuContainer);
-		
+
 		menuContainer.Add(leftButtonContainer);
 		menuContainer.Add(rightmenuContainer);
 
 		GenerateCharaterList(characterlist, leftButtonContainer);
 		GenerateCharacterBarsContainer(name, rightmenuContainer);
-		//GenerateMenuList(menuOptions, leftButtonContainer);
 	}
 
 
@@ -68,63 +61,109 @@ public class JRPGMenu : MonoBehaviour
 	T Create<T>(params string[] classNames) where T : VisualElement, new()
 	{
 		var element = new T();
-		foreach(var className in classNames)
+		foreach (var className in classNames)
 		{
 
-				element.AddToClassList(className);
+			element.AddToClassList(className);
 
 		}
 		return element;
 	}
 
-	void GenerateMenuList(List<string> list, VisualElement target)
+	void GenerateMenuList(Character character, VisualElement target)
 	{
-		for (int i = 0; i < list.Count; i++)
+		var GeneratedMenuList = Create("menu-list-container");
+
+
+		for (int i = 0; i < character.actions.Count; i++)
 		{
 			//Local Variable made to address error condition with lambda where value was not being properly assigned.
-			var skill = list[i];
+			var menuOption = character.actions[i];
+
 			var button = new UnityEngine.UIElements.Button();
-			button.text = list[i];
-			button.clicked += () => CreateSubMenu(target);
+			button.text = character.actions[i].menuName;
+			button.clicked += () => CreateSubMenu(character.actions, target);
 			button.AddToClassList("submenubutton");
-			target.Add(button);
+
+			GeneratedMenuList.Add(button);
 		}
+
+		document.rootVisualElement.Add(GeneratedMenuList);
 	}
 
-	void GenerateCharaterList(List<string> list, VisualElement target)
+	void CreateSubMenu(List<MenuActions> actions, VisualElement ele)
+	{
+		var subMenuContainer = Create("submenucontainer");
+
+		var scrollMenu = new ScrollView(ScrollViewMode.Horizontal);
+		scrollMenu.contentContainer.AddToClassList("scroll-menu-content");
+		scrollMenu.AddToClassList("scroll-menu");
+		scrollMenu.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+
+		subMenuContainer.Add(scrollMenu);
+
+		for(int i = 0;i < actions.Count;i++)
+		{
+			GenerateOptionsList(actions[i], scrollMenu);
+		}
+
+		document.rootVisualElement.Add(subMenuContainer);
+	}
+
+	void GenerateCharaterList(List<Character> party, VisualElement target)
 	{
 		var characterlistlabel = new UnityEngine.UIElements.Label();
 		characterlistlabel.text = "chars";
 		characterlistlabel.AddToClassList("character-list-label");
 		target.Add(characterlistlabel);
-		for(int i = 0; i < list.Count;i++)
+		for (int i = 0; i < party.Count; i++)
 		{
-			var character = list[i];
-			CreateCharacterDataContainer(list[i], target);
+			var character = party[i];
+			CreateCharacterDataContainer(party[i], target);
 		}
 	}
 
-
-	void GenerateOptionsList(List<string> list, VisualElement target)
+	void CreateCharacterDataContainer(Character character, VisualElement target)
 	{
-		for (int i = 0; i < list.Count; i++)
+		var characterDataContainer = Create("value-bar-container");
+
+		var characterImage = new UnityEngine.UIElements.Image();
+		characterImage.sprite = selectorSprite;
+		characterImage.AddToClassList("character-image");
+
+		var characterButton = new UnityEngine.UIElements.Button();
+		characterButton.text = character.characterName;
+		characterButton.clicked += () => GenerateMenuList(character, document.rootVisualElement);
+		characterButton.AddToClassList("character-button");
+
+		characterDataContainer.Add(characterImage);
+		characterDataContainer.Add(characterButton);
+
+		target.Add(characterDataContainer);
+	}
+
+
+
+	void GenerateOptionsList(MenuActions action, VisualElement target)
+	{
+		for (int i = 0; i < action.skill.Count; i++)
 		{
 			//Local Variable made to address error condition with lambda where value was not being properly assigned.
-			var skill = list[i];
+			var skillList = action.skill[i];
 
-			CreateButton(list[i], target);
+			CreateButton(action.skill[i].skillName, target);
 		}
 	}
 
 	void CreateButton(string data, VisualElement target)
 	{
 		var newContainer = Create("buttonContainer");
-		
+
 		var newButton = new UnityEngine.UIElements.Button();
 		newButton.text = data;
 		newButton.clicked += () => Debug.Log("Button Pressed");
 		newButton.AddToClassList("submenubutton");
-		
+
 		var selector = new UnityEngine.UIElements.Image();
 		selector.AddToClassList("button-selector-bullet");
 		selector.sprite = selectorSprite;
@@ -135,116 +174,64 @@ public class JRPGMenu : MonoBehaviour
 		target.Add(newContainer);
 	}
 
-	void CreateSubMenu(VisualElement ele)
-	{
-		menuOptions.Add("Attack");
-		menuOptions.Add("Magic");
-		menuOptions.Add("Item");
-		var subMenuContainer = Create("submenucontainer");
-		
-		var scrollMenu = new ScrollView(ScrollViewMode.Horizontal);
-		scrollMenu.contentContainer.AddToClassList("scroll-menu-content");
-		scrollMenu.AddToClassList("scroll-menu");
-		scrollMenu.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
-
-		subMenuContainer.Add(scrollMenu);
-		GenerateOptionsList(menuOptions, scrollMenu);
-
-		document.rootVisualElement.Add(subMenuContainer);
-	}
-
-	void CreateCharacterDataContainer(string value, VisualElement target)
-	{
-		var characterDataContainer = Create("value-bar-container");
-
-		var characterImage = new UnityEngine.UIElements.Image();
-		characterImage.sprite = selectorSprite;
-		characterImage.AddToClassList("character-image");
-
-		var characterButton = new UnityEngine.UIElements.Button();
-		characterButton.text = value;
-		characterButton.clicked += () => CreateSubMenu(target);
-		characterButton.AddToClassList("character-button");
-
-		characterDataContainer.Add(characterImage);
-		characterDataContainer.Add(characterButton);
-
-		target.Add(characterDataContainer);
-	}
-
-	void GenerateCharacterBarsContainer(string value, VisualElement target) 
+	void GenerateCharacterBarsContainer(string value, VisualElement target)
 	{
 		var characterBarsContainer = Create("character-bars-container");
 
 		var labelcontainer = Create("label-container");
 		characterBarsContainer.Add(labelcontainer);
 
-		CreateHealthManaBars(labelcontainer);
+		CreateStatusBars(labelcontainer);
 
 		target.Add(characterBarsContainer);
 	}
 
-	void CreateHealthManaBars(VisualElement target)
+	void CreateStatusBars(VisualElement target)
 	{
-		var healthcontainer = Create("health-container");
-		var healthlabel = new UnityEngine.UIElements.Label();
-		healthlabel.text = "health";
-		healthcontainer.Add(healthlabel);
+		var healthContainer = CreateBarContainer("health");
+		var manaContainer = CreateBarContainer("mana");
+		var xpContainer = CreateBarContainer("xp");
 
 
-		var manacontainer = Create("mana-container");
-		var manalabel = new UnityEngine.UIElements.Label();
-		manalabel.text = "mana";
-		manacontainer.Add(manalabel);
-
-		//
-
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < characterlist.Count; i++)
 		{
-			var healthbarcontainer = Create("health-bar-container");
-			healthcontainer.Add(healthbarcontainer);
-
-			var manabarcontainer = Create("mana-bar-container");
-			manacontainer.Add(manabarcontainer);
-
-			var healthbarnumber = new UnityEngine.UIElements.Label();
-			healthbarnumber.AddToClassList("health-bar-number");
-			var manabarnumber = new UnityEngine.UIElements.Label();
-			manabarnumber.AddToClassList("health-bar-number");
-			healthbarcontainer.Add(healthbarnumber);
-
-			var healthbar = new UnityEngine.UIElements.ProgressBar();
-			healthbar.AddToClassList("healthbar");
-			healthbar.value = 100;
-			healthbarnumber.text = $"{healthbar.value.ToString()} / {healthbar.value.ToString()}";
-			healthbarcontainer.Add(healthbar);
-
-			manabarcontainer.Add(manabarnumber);
-			var manabar = new UnityEngine.UIElements.ProgressBar();
-
-			manabarcontainer.Add(manabar);
-			manabar.value = 100;
-			manabarnumber.text = $"{manabar.value.ToString()} / {manabar.value.ToString()}";
-			manabar.AddToClassList("healthbar");
-
+			CreateProgressBar(100, healthContainer);
+			CreateProgressBar(200, manaContainer);
+			CreateProgressBar(300, xpContainer);
 		}
 
-		target.Add(healthcontainer);
-		target.Add(manacontainer);
+		target.Add(healthContainer);
+		target.Add(manaContainer);
+		target.Add(xpContainer);
 	}
 
-}
-
-public class Skill
-{
-	public string skillName;
-
-	public Skill(string skill) {
-		skillName = skill;
-	}
-
-	public void ActionSkill()
+	VisualElement CreateBarContainer(string value)
 	{
-		Debug.Log($"Skill {skillName}");
-	}	
+		var barContainer = Create("bar-container");
+		var barlabel = new UnityEngine.UIElements.Label();
+		barlabel.text = value;
+		barContainer.Add(barlabel);
+
+		return barContainer;
+	}
+
+	void CreateProgressBar(int value, VisualElement target)
+	{
+		var container = Create("progress-bar-container");
+		target.Add(container);
+
+		var barNumber = new UnityEngine.UIElements.Label();
+		barNumber.AddToClassList("bar-number");
+		barNumber.text = $"{value.ToString()} / {value.ToString()}";
+		container.Add(barNumber);
+
+		var progressBar = new UnityEngine.UIElements.ProgressBar();
+		progressBar.AddToClassList("progress-bar");
+		progressBar.value = 100;
+		container.Add(progressBar);
+
+		target.Add(container);
+	}
+
 }
+
