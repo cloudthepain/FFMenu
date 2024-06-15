@@ -157,11 +157,16 @@ public class JRPGMenu : MonoBehaviour
 	{
 		var characterDataContainer = Create("value-bar-container");
 
+		var characterImage = new UnityEngine.UIElements.Image();
+		characterImage.sprite = selectorSprite;
+		characterImage.AddToClassList("character-image");
+
 		var characterButton = new UnityEngine.UIElements.Button();
 		characterButton.text = value;
 		characterButton.clicked += () => CreateSubMenu(target);
 		characterButton.AddToClassList("character-button");
 
+		characterDataContainer.Add(characterImage);
 		characterDataContainer.Add(characterButton);
 
 		target.Add(characterDataContainer);

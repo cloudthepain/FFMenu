@@ -135,4 +135,13 @@
 	background-color: rgba(0,0,0,0);
 	border-color: rgba(0,0,0,0);
 	color: white;
+	flex-grow: 1;
+	-unity-text-align: middle-left;
+}
+
+.character-image
+{
+	max-height: 100%;
+	max-width: 10%;
+	flex-grow: 1;
 }
