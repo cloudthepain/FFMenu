@@ -14,12 +14,18 @@ public class JRPGMenu : MonoBehaviour
 	[SerializeField] public Sprite selectorSprite;
 
 	List<string> menuOptions = new List<string>();
+	List<string> characterlist = new List<string>();
 
 	private void Start()
 	{
 		menuOptions.Add("Attack");
 		menuOptions.Add("Magic");
 		menuOptions.Add("Item");
+
+		characterlist.Add("Cloud");
+		characterlist.Add("Cloud");
+		characterlist.Add("Cloud");
+
 		StartCoroutine(Generate());
 
 	}
@@ -44,9 +50,13 @@ public class JRPGMenu : MonoBehaviour
 		var leftButtonContainer = Create("left-button-container");
 		var rightmenuContainer = Create("right-menu-container");
 		root.Add(menuContainer);
+		
 		menuContainer.Add(leftButtonContainer);
 		menuContainer.Add(rightmenuContainer);
-		GenerateMenuList(menuOptions, leftButtonContainer);
+
+		GenerateCharaterList(characterlist, leftButtonContainer);
+		GenerateCharacterBarsContainer(name, rightmenuContainer);
+		//GenerateMenuList(menuOptions, leftButtonContainer);
 	}
 
 
@@ -78,6 +88,15 @@ public class JRPGMenu : MonoBehaviour
 			button.clicked += () => CreateSubMenu(target);
 			button.AddToClassList("submenubutton");
 			target.Add(button);
+		}
+	}
+
+	void GenerateCharaterList(List<string> list, VisualElement target)
+	{
+		for(int i = 0; i < list.Count;i++)
+		{
+			var character = list[i];
+			CreateCharacterDataContainer(list[i], target);
 		}
 	}
 
@@ -114,14 +133,9 @@ public class JRPGMenu : MonoBehaviour
 
 	void CreateSubMenu(VisualElement ele)
 	{
-		for(int i = 0; i < 30; i++)
-		{
-			menuOptions.Add($"{i}");
-		}
 		menuOptions.Add("Attack");
 		menuOptions.Add("Magic");
 		menuOptions.Add("Item");
-		Debug.Log("Menu Created");
 		var subMenuContainer = Create("submenucontainer");
 		
 		var scrollMenu = new ScrollView(ScrollViewMode.Horizontal);
@@ -133,7 +147,74 @@ public class JRPGMenu : MonoBehaviour
 		GenerateOptionsList(menuOptions, scrollMenu);
 
 		document.rootVisualElement.Add(subMenuContainer);
+	}
 
+	void CreateCharacterDataContainer(string value, VisualElement target)
+	{
+		var characterDataContainer = Create("value-bar-container");
+
+		var characterButton = new UnityEngine.UIElements.Button();
+		characterButton.text = value;
+		characterButton.clicked += () => CreateSubMenu(target);
+		characterButton.AddToClassList("character-button");
+
+		characterDataContainer.Add(characterButton);
+
+		target.Add(characterDataContainer);
+	}
+
+	void GenerateCharacterBarsContainer(string value, VisualElement target) 
+	{
+		var characterBarsContainer = Create("character-bars-container");
+
+		var labelcontainer = Create("label-container");
+		characterBarsContainer.Add(labelcontainer);
+
+		CreateHealthManaBars(labelcontainer);
+
+		target.Add(characterBarsContainer);
+	}
+
+	void CreateHealthManaBars(VisualElement target)
+	{
+		var healthcontainer = Create("health-container");
+		var healthlabel = new UnityEngine.UIElements.Label();
+		healthlabel.text = "health";
+		healthcontainer.Add(healthlabel);
+
+
+		var manacontainer = Create("mana-container");
+		var manalabel = new UnityEngine.UIElements.Label();
+		manalabel.text = "mana";
+		manacontainer.Add(manalabel);
+
+		//
+
+		for (int i = 0; i < 3; i++)
+		{
+			var healthbarnumber = new UnityEngine.UIElements.Label();
+			healthbarnumber.AddToClassList("health-bar-number");
+			var manabarnumber = new UnityEngine.UIElements.Label();
+			manabarnumber.AddToClassList("health-bar-number");
+			healthcontainer.Add(healthbarnumber);
+
+			var healthbar = new UnityEngine.UIElements.ProgressBar();
+			healthbar.AddToClassList("healthbar");
+			healthbar.value = 100;
+			healthbarnumber.text = $"{healthbar.value.ToString()} / {healthbar.value.ToString()}";
+			healthcontainer.Add(healthbar);
+
+			manacontainer.Add(manabarnumber);
+			var manabar = new UnityEngine.UIElements.ProgressBar();
+
+			manacontainer.Add(manabar);
+			manabar.value = 100;
+			manabarnumber.text = $"{manabar.value.ToString()} / {manabar.value.ToString()}";
+			manabar.AddToClassList("healthbar");
+
+			target.Add(healthcontainer);
+			target.Add(manacontainer);
+		}
 	}
 
 }
