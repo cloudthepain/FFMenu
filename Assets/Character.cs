@@ -24,12 +24,21 @@ public class Character : MonoBehaviour
 		actions = new List<MenuActions>();
 		this.characterName = characterName;
 		MenuActions attack = new MenuActions("Attack");
+		MenuActions magic = new MenuActions("Magic");
+		MenuActions flee = new MenuActions("Flee");
+		
 		Skill fireball = new Skill("fireball");
-		attack.skill.Add(fireball);
+		Skill wish = new Skill("wish");
+		Skill run = new Skill("Run");
 
 		actions.Add(attack);
-		actions.Add(new MenuActions("Magic"));
-		actions.Add(new MenuActions("Flee"));
+		actions.Add(magic);
+		actions.Add(flee);
+
+		attack.skilllist.Add(fireball);
+		magic.skilllist.Add(wish);
+		flee.skilllist.Add(run);
+
 	}
 
 }
@@ -37,12 +46,12 @@ public class Character : MonoBehaviour
 public class MenuActions
 {
 	public string menuName;
-	public List<Skill> skill;
+	public List<Skill> skilllist;
 
 	public MenuActions(string name)
 	{
 		this.menuName = name;
-		skill = new List<Skill>();
+		skilllist = new List<Skill>();
 	}
 }
 

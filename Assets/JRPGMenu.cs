@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 using System;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using static UnityEditor.Progress;
 
 public class JRPGMenu : MonoBehaviour
 {
@@ -15,6 +16,9 @@ public class JRPGMenu : MonoBehaviour
 
 	List<string> menuOptions = new List<string>();
 	List<Character> characterlist = new List<Character>();
+
+	SubMenu submenu;
+	ActionMenu actionMenu;
 
 	private void Start()
 	{
@@ -48,11 +52,20 @@ public class JRPGMenu : MonoBehaviour
 		menuContainer.Add(leftButtonContainer);
 		menuContainer.Add(rightmenuContainer);
 
+
+		actionMenu = new ActionMenu(document);
+		actionMenu.GenerateMenuList();
+		actionMenu.Hide();
+
+		submenu = new SubMenu(document, selectorSprite);
+		submenu.Hide();
+
 		GenerateCharaterList(characterlist, leftButtonContainer);
 		GenerateCharacterBarsContainer(name, rightmenuContainer);
 	}
 
-
+	//Create
+	#region
 	VisualElement Create(params string[] className)
 	{
 		return Create<VisualElement>(className);
@@ -69,47 +82,10 @@ public class JRPGMenu : MonoBehaviour
 		}
 		return element;
 	}
+	#endregion
 
-	void GenerateMenuList(Character character, VisualElement target)
-	{
-		var GeneratedMenuList = Create("menu-list-container");
-
-
-		for (int i = 0; i < character.actions.Count; i++)
-		{
-			//Local Variable made to address error condition with lambda where value was not being properly assigned.
-			var menuOption = character.actions[i];
-
-			var button = new UnityEngine.UIElements.Button();
-			button.text = character.actions[i].menuName;
-			button.clicked += () => CreateSubMenu(character.actions, target);
-			button.AddToClassList("submenubutton");
-
-			GeneratedMenuList.Add(button);
-		}
-
-		document.rootVisualElement.Add(GeneratedMenuList);
-	}
-
-	void CreateSubMenu(List<MenuActions> actions, VisualElement ele)
-	{
-		var subMenuContainer = Create("submenucontainer");
-
-		var scrollMenu = new ScrollView(ScrollViewMode.Horizontal);
-		scrollMenu.contentContainer.AddToClassList("scroll-menu-content");
-		scrollMenu.AddToClassList("scroll-menu");
-		scrollMenu.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
-
-		subMenuContainer.Add(scrollMenu);
-
-		for(int i = 0;i < actions.Count;i++)
-		{
-			GenerateOptionsList(actions[i], scrollMenu);
-		}
-
-		document.rootVisualElement.Add(subMenuContainer);
-	}
-
+	//Character
+	#region
 	void GenerateCharaterList(List<Character> party, VisualElement target)
 	{
 		var characterlistlabel = new UnityEngine.UIElements.Label();
@@ -123,6 +99,8 @@ public class JRPGMenu : MonoBehaviour
 		}
 	}
 
+
+	//Character Name button
 	void CreateCharacterDataContainer(Character character, VisualElement target)
 	{
 		var characterDataContainer = Create("value-bar-container");
@@ -133,45 +111,18 @@ public class JRPGMenu : MonoBehaviour
 
 		var characterButton = new UnityEngine.UIElements.Button();
 		characterButton.text = character.characterName;
-		characterButton.clicked += () => GenerateMenuList(character, document.rootVisualElement);
+		characterButton.clicked += () =>
+		{
+			actionMenu.Reveal();
+			actionMenu.FillMenuList(character, submenu);
+		};
+		
 		characterButton.AddToClassList("character-button");
 
 		characterDataContainer.Add(characterImage);
 		characterDataContainer.Add(characterButton);
 
 		target.Add(characterDataContainer);
-	}
-
-
-
-	void GenerateOptionsList(MenuActions action, VisualElement target)
-	{
-		for (int i = 0; i < action.skill.Count; i++)
-		{
-			//Local Variable made to address error condition with lambda where value was not being properly assigned.
-			var skillList = action.skill[i];
-
-			CreateButton(action.skill[i].skillName, target);
-		}
-	}
-
-	void CreateButton(string data, VisualElement target)
-	{
-		var newContainer = Create("buttonContainer");
-
-		var newButton = new UnityEngine.UIElements.Button();
-		newButton.text = data;
-		newButton.clicked += () => Debug.Log("Button Pressed");
-		newButton.AddToClassList("submenubutton");
-
-		var selector = new UnityEngine.UIElements.Image();
-		selector.AddToClassList("button-selector-bullet");
-		selector.sprite = selectorSprite;
-
-		newContainer.Add(selector);
-		newContainer.Add(newButton);
-
-		target.Add(newContainer);
 	}
 
 	void GenerateCharacterBarsContainer(string value, VisualElement target)
@@ -185,7 +136,10 @@ public class JRPGMenu : MonoBehaviour
 
 		target.Add(characterBarsContainer);
 	}
+	#endregion
 
+	//Progress Bars
+	#region
 	void CreateStatusBars(VisualElement target)
 	{
 		var healthContainer = CreateBarContainer("health");
@@ -232,6 +186,157 @@ public class JRPGMenu : MonoBehaviour
 
 		target.Add(container);
 	}
+	#endregion
+}
 
+class ActionMenu
+{
+
+	private UIDocument document;
+	VisualElement generatedMenuList;
+
+	public ActionMenu(UIDocument document)
+	{
+		this.document = document;
+		GenerateMenuList();
+	}
+
+	public void GenerateMenuList()
+	{
+		generatedMenuList = new VisualElement();
+		generatedMenuList.AddToClassList("menu-list-container");
+
+		document.rootVisualElement.Add(generatedMenuList);
+	}
+
+	public void Hide()
+	{
+		generatedMenuList.visible = false;
+	}
+	public void Reveal()
+	{
+		generatedMenuList.visible = true;
+	}
+
+	public void FillMenuList(Character character, SubMenu subMenu)
+	{
+
+		//Clear the old menu options & brings the menu to the front. Otherwise the menu will have the old options & will be covered by the submenu.
+		generatedMenuList.Clear();
+		generatedMenuList.BringToFront();
+		for (int i = 0; i < character.actions.Count; i++)
+		{
+
+			//Local Variable made to address error condition with lambda where value was not being properly assigned.
+			var menuOption = character.actions[i];
+
+			var button = new UnityEngine.UIElements.Button();
+			button.text = character.actions[i].menuName;
+			button.clicked += () =>
+			{
+				generatedMenuList.visible = false;
+				subMenu.Reveal();
+				subMenu.FillOptionsList(menuOption);
+			};
+			button.AddToClassList("submenubutton");
+
+			generatedMenuList.Add(button);
+		}
+	}
+}
+
+class SubMenu
+{
+	private UIDocument document;
+	
+	public VisualElement subMenuContainer;
+	ScrollView scrollMenu;
+	Sprite selectorSprite;
+	VisualElement childElement;
+
+	public SubMenu(UIDocument document, Sprite selectorSprite)
+	{
+		this.document = document;
+		this.selectorSprite = selectorSprite;
+		GenerateSubMenu();
+	}
+
+	public void GenerateSubMenu()
+	{
+		subMenuContainer = new VisualElement();
+		subMenuContainer.AddToClassList("submenucontainer");
+
+		scrollMenu = new ScrollView(ScrollViewMode.Horizontal);
+		scrollMenu.contentContainer.AddToClassList("scroll-menu-content");
+		scrollMenu.AddToClassList("scroll-menu");
+		scrollMenu.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+
+		subMenuContainer.Add(scrollMenu);
+
+		document.rootVisualElement.Add(subMenuContainer);
+	}
+
+	public void Reveal()
+	{
+		subMenuContainer.visible = true;
+		scrollMenu.visible = true;
+	}
+
+	public void Hide()
+	{
+		subMenuContainer.visible = false;
+		scrollMenu.visible = false;
+	}
+
+
+	public void FillSubMenu(List<MenuActions> actions)
+	{
+		scrollMenu.Clear();
+		for (int i = 0; i < actions.Count; i++)
+		{
+			FillOptionsList(actions[i]);
+		}
+
+	}
+
+	public void FillOptionsList(MenuActions action)
+	{
+		scrollMenu.Clear();
+		for (int i = 0; i < action.skilllist.Count; i++)
+		{
+			//Local Variable made to address error condition with lambda where value was not being properly assigned.
+			Debug.Log(action.skilllist[i].skillName);
+			var skill = action.skilllist[i];
+
+			CreateButton(skill, scrollMenu);
+		}
+	}
+
+	public void CreateButton(Skill skill, VisualElement target)
+	{
+		var newContainer = new VisualElement();
+		newContainer.AddToClassList("buttonContainer");
+
+		var newButton = new UnityEngine.UIElements.Button();
+		
+		newButton.text = skill.skillName;
+		newButton.clicked += () =>
+		{
+			newButton.parent.parent.visible = false;
+			skill.ActionSkill();
+		};
+
+		
+		newButton.AddToClassList("submenubutton");
+
+		var selector = new UnityEngine.UIElements.Image();
+		selector.AddToClassList("button-selector-bullet");
+		selector.sprite = selectorSprite;
+
+		newContainer.Add(selector);
+		newContainer.Add(newButton);
+
+		target.Add(newContainer);
+	}
 }
 
