@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using static UnityEditor.Progress;
+using System.Linq;
 
 public class JRPGMenu : MonoBehaviour
 {
@@ -17,6 +17,8 @@ public class JRPGMenu : MonoBehaviour
 	List<string> menuOptions = new List<string>();
 	List<Character> characterlist = new List<Character>();
 
+	List<UnityEngine.UIElements.Button> buttonlist = new List<UnityEngine.UIElements.Button>();
+
 	SubMenu submenu;
 	ActionMenu actionMenu;
 
@@ -24,6 +26,7 @@ public class JRPGMenu : MonoBehaviour
 	{
 		characterlist.Add(new Character("Steven"));
 		characterlist.Add(new Character("Baron"));
+		characterlist.Add(new Character("Yo-Ho"));
 		StartCoroutine(Generate());
 
 	}
@@ -32,6 +35,14 @@ public class JRPGMenu : MonoBehaviour
 	{
 		if (Application.isPlaying) return;
 		StartCoroutine(Generate());
+	}
+
+	private void Update()
+	{
+		if (Input.GetButtonDown("Jump"))
+		{
+			ResetButtons();
+		}
 	}
 
 
@@ -113,8 +124,10 @@ public class JRPGMenu : MonoBehaviour
 		characterButton.text = character.characterName;
 		characterButton.clicked += () =>
 		{
+			characterButton.SetEnabled(false);
 			actionMenu.Reveal();
 			actionMenu.FillMenuList(character, submenu);
+			CheckAllCharactersUsed();
 		};
 		
 		characterButton.AddToClassList("character-button");
@@ -123,6 +136,29 @@ public class JRPGMenu : MonoBehaviour
 		characterDataContainer.Add(characterButton);
 
 		target.Add(characterDataContainer);
+		buttonlist.Add(characterButton);
+	}
+
+	void ResetButtons()
+	{
+		for(int i = 0; i < buttonlist.Count; i++)
+		{
+			buttonlist[i].SetEnabled(true);
+		}	
+	}
+
+	bool CheckAllCharactersUsed()
+	{
+		bool alldisabled = true;
+
+		for (int i = 0; i < buttonlist.Count; i++)
+		{
+			if (buttonlist[i].enabledInHierarchy)
+			{
+				return(!alldisabled);
+			}
+		}
+		return alldisabled;
 	}
 
 	void GenerateCharacterBarsContainer(string value, VisualElement target)
