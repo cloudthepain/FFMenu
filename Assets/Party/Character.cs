@@ -46,29 +46,3 @@ public class Character : MonoBehaviour
 
 }
 
-public class MenuActions
-{
-	public string menuName;
-	public List<Skill> skilllist;
-
-	public MenuActions(string name)
-	{
-		this.menuName = name;
-		skilllist = new List<Skill>();
-	}
-}
-
-public class Skill
-{
-	public string skillName;
-
-	public Skill(string skill)
-	{
-		skillName = skill;
-	}
-
-	public void ActionSkill()
-	{
-		Debug.Log($"Skill {skillName}");
-	}
-}
