@@ -156,8 +156,6 @@ public class JRPGMenu : MonoBehaviour
 
 		buttonlist.Add(characterButton);
 
-	void ResetButtons()
-	{
 		target.Add(characterDataContainer);
 	}
 
