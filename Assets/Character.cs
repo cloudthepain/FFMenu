@@ -13,6 +13,7 @@ public class Character : MonoBehaviour
 	public MenuActions MagicMenu;
 	public MenuActions FleeMenu;
 
+	public bool turnOver;
 
 	public int health;
 	public int maxHealth;
@@ -30,6 +31,8 @@ public class Character : MonoBehaviour
 		Skill fireball = new Skill("fireball");
 		Skill wish = new Skill("wish");
 		Skill run = new Skill("Run");
+
+		turnOver = false;
 
 		actions.Add(attack);
 		actions.Add(magic);

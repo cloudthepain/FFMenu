@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using static UnityEditor.Progress;
 using System.Linq;
+using UnityEngine.TextCore.Text;
 
 public class JRPGMenu : MonoBehaviour
 {
@@ -14,19 +15,20 @@ public class JRPGMenu : MonoBehaviour
 	[SerializeField] private StyleSheet styles;
 	[SerializeField] public Sprite selectorSprite;
 
-	List<string> menuOptions = new List<string>();
-	List<Character> characterlist = new List<Character>();
+	PartyManager partyManager;
 
 	List<UnityEngine.UIElements.Button> buttonlist = new List<UnityEngine.UIElements.Button>();
 
 	SubMenu submenu;
 	ActionMenu actionMenu;
 
+	VisualElement menuContainer;
+	VisualElement leftButtonContainer;
+	VisualElement rightmenuContainer;
+
 	private void Start()
 	{
-		characterlist.Add(new Character("Steven"));
-		characterlist.Add(new Character("Baron"));
-		characterlist.Add(new Character("Yo-Ho"));
+
 		StartCoroutine(Generate());
 
 	}
@@ -45,6 +47,13 @@ public class JRPGMenu : MonoBehaviour
 		}
 	}
 
+	void ResetButtons()
+	{
+		submenu.Hide();
+		actionMenu.Hide();
+		if (CheckAllCharactersUsed()) { return; }
+		GenerateCharaterList(partyManager.characterlist, leftButtonContainer);
+	}
 
 	//Used IEnumerator to address potential race condition
 	private IEnumerator Generate()
@@ -55,14 +64,15 @@ public class JRPGMenu : MonoBehaviour
 
 		root.styleSheets.Add(styles);
 
-		var menuContainer = Create("menu-container");
-		var leftButtonContainer = Create("left-button-container");
-		var rightmenuContainer = Create("right-menu-container");
+		menuContainer = Create("menu-container");
+		leftButtonContainer = Create("left-button-container");
+		rightmenuContainer = Create("right-menu-container");
 		root.Add(menuContainer);
 
 		menuContainer.Add(leftButtonContainer);
 		menuContainer.Add(rightmenuContainer);
 
+		partyManager = new PartyManager();
 
 		actionMenu = new ActionMenu(document);
 		actionMenu.GenerateMenuList();
@@ -71,7 +81,7 @@ public class JRPGMenu : MonoBehaviour
 		submenu = new SubMenu(document, selectorSprite);
 		submenu.Hide();
 
-		GenerateCharaterList(characterlist, leftButtonContainer);
+		GenerateCharaterList(partyManager.characterlist, leftButtonContainer);
 		GenerateCharacterBarsContainer(name, rightmenuContainer);
 	}
 
@@ -99,13 +109,14 @@ public class JRPGMenu : MonoBehaviour
 	#region
 	void GenerateCharaterList(List<Character> party, VisualElement target)
 	{
+		target.Clear();
 		var characterlistlabel = new UnityEngine.UIElements.Label();
 		characterlistlabel.text = "chars";
 		characterlistlabel.AddToClassList("character-list-label");
 		target.Add(characterlistlabel);
-		for (int i = 0; i < party.Count; i++)
+
+		for(int i= 0; i < party.Count; i++)
 		{
-			var character = party[i];
 			CreateCharacterDataContainer(party[i], target);
 		}
 	}
@@ -114,6 +125,7 @@ public class JRPGMenu : MonoBehaviour
 	//Character Name button
 	void CreateCharacterDataContainer(Character character, VisualElement target)
 	{
+
 		var characterDataContainer = Create("value-bar-container");
 
 		var characterImage = new UnityEngine.UIElements.Image();
@@ -122,6 +134,13 @@ public class JRPGMenu : MonoBehaviour
 
 		var characterButton = new UnityEngine.UIElements.Button();
 		characterButton.text = character.characterName;
+		
+		if (character.turnOver)
+		
+		{
+			characterButton.SetEnabled(false);
+		}
+
 		characterButton.clicked += () =>
 		{
 			characterButton.SetEnabled(false);
@@ -135,30 +154,24 @@ public class JRPGMenu : MonoBehaviour
 		characterDataContainer.Add(characterImage);
 		characterDataContainer.Add(characterButton);
 
-		target.Add(characterDataContainer);
 		buttonlist.Add(characterButton);
-	}
 
 	void ResetButtons()
 	{
-		for(int i = 0; i < buttonlist.Count; i++)
-		{
-			buttonlist[i].SetEnabled(true);
-		}	
+		target.Add(characterDataContainer);
 	}
 
 	bool CheckAllCharactersUsed()
 	{
-		bool alldisabled = true;
-
-		for (int i = 0; i < buttonlist.Count; i++)
+		for(int i = 0; i < partyManager.characterlist.Count; i++)
 		{
-			if (buttonlist[i].enabledInHierarchy)
+			if (!partyManager.characterlist[i].turnOver)
 			{
-				return(!alldisabled);
+				Debug.Log($"{partyManager.characterlist[i].characterName} hasn't gone!");
+				return false;
 			}
 		}
-		return alldisabled;
+		return true;
 	}
 
 	void GenerateCharacterBarsContainer(string value, VisualElement target)
@@ -183,7 +196,7 @@ public class JRPGMenu : MonoBehaviour
 		var xpContainer = CreateBarContainer("xp");
 
 
-		for (int i = 0; i < characterlist.Count; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			CreateProgressBar(100, healthContainer);
 			CreateProgressBar(200, manaContainer);
@@ -223,6 +236,19 @@ public class JRPGMenu : MonoBehaviour
 		target.Add(container);
 	}
 	#endregion
+}
+
+class PartyManager
+{
+	public List<Character> characterlist = new List<Character>();
+
+	public PartyManager() 
+	{
+		characterlist.Add(new Character("Steven"));
+		characterlist.Add(new Character("Baron"));
+
+	}
+
 }
 
 class ActionMenu
@@ -265,20 +291,24 @@ class ActionMenu
 
 			//Local Variable made to address error condition with lambda where value was not being properly assigned.
 			var menuOption = character.actions[i];
-
+			Character passedCharacter = character;
+			
 			var button = new UnityEngine.UIElements.Button();
 			button.text = character.actions[i].menuName;
 			button.clicked += () =>
 			{
 				generatedMenuList.visible = false;
 				subMenu.Reveal();
-				subMenu.FillOptionsList(menuOption);
+				subMenu.FillOptionsList(passedCharacter, menuOption);
 			};
+
+			//if button is clicked, reset this button
 			button.AddToClassList("submenubutton");
 
 			generatedMenuList.Add(button);
 		}
 	}
+
 }
 
 class SubMenu
@@ -288,7 +318,7 @@ class SubMenu
 	public VisualElement subMenuContainer;
 	ScrollView scrollMenu;
 	Sprite selectorSprite;
-	VisualElement childElement;
+	public List<Character> characterTurnComplete;
 
 	public SubMenu(UIDocument document, Sprite selectorSprite)
 	{
@@ -324,18 +354,7 @@ class SubMenu
 		scrollMenu.visible = false;
 	}
 
-
-	public void FillSubMenu(List<MenuActions> actions)
-	{
-		scrollMenu.Clear();
-		for (int i = 0; i < actions.Count; i++)
-		{
-			FillOptionsList(actions[i]);
-		}
-
-	}
-
-	public void FillOptionsList(MenuActions action)
+	public void FillOptionsList(Character character, MenuActions action)
 	{
 		scrollMenu.Clear();
 		for (int i = 0; i < action.skilllist.Count; i++)
@@ -344,11 +363,11 @@ class SubMenu
 			Debug.Log(action.skilllist[i].skillName);
 			var skill = action.skilllist[i];
 
-			CreateButton(skill, scrollMenu);
+			CreateButton(character, skill, scrollMenu);
 		}
 	}
 
-	public void CreateButton(Skill skill, VisualElement target)
+	public void CreateButton(Character character, Skill skill, VisualElement target)
 	{
 		var newContainer = new VisualElement();
 		newContainer.AddToClassList("buttonContainer");
@@ -360,6 +379,7 @@ class SubMenu
 		{
 			newButton.parent.parent.visible = false;
 			skill.ActionSkill();
+			character.turnOver = true;
 		};
 
 		
