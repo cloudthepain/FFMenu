@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -56,7 +57,6 @@ public class SubMenu : MonoBehaviour
 		for (int i = 0; i < action.skilllist.Count; i++)
 		{
 			//Local Variable made to address error condition with lambda where value was not being properly assigned.
-			Debug.Log(action.skilllist[i].skillName);
 			var skill = action.skilllist[i];
 
 			CreateButton(character, skill, scrollMenu);
@@ -76,6 +76,10 @@ public class SubMenu : MonoBehaviour
 			//hides the previous men
 			newButton.parent.parent.visible = false;
 			skill.ActionSkill();
+			Reset.Invoke();
+			//How do I get this to trigger Reset Menus in JRPGMenu? 
+
+
 			character.turnOver = true;
 		};
 
@@ -91,4 +95,7 @@ public class SubMenu : MonoBehaviour
 
 		target.Add(newContainer);
 	}
+
+	public Action Reset;
+
 }

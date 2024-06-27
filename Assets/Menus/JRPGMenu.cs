@@ -30,7 +30,9 @@ public class JRPGMenu : MonoBehaviour
 	private void Start()
 	{
 		StartCoroutine(Generate());
+		submenu.Reset += ResetButtons;
 	}
+
 
 	private void OnValidate()
 	{
@@ -46,11 +48,14 @@ public class JRPGMenu : MonoBehaviour
 		}
 	}
 
+	public delegate void ResetMenus();
+
 	/// <summary>
 	/// Cancels the button choice & allows for a different option to be selected.
 	/// </summary>
 	void ResetButtons()
 	{
+		Debug.Log("Call Me any time");
 		submenu.Hide();
 		actionMenu.Hide();
 		if (CheckAllCharactersUsed()) { return; }
@@ -148,6 +153,7 @@ public class JRPGMenu : MonoBehaviour
 			characterButton.SetEnabled(false);
 			actionMenu.Reveal();
 			actionMenu.FillMenuList(character, submenu);
+			DeactivateAllCharacters();
 			CheckAllCharactersUsed();
 		};
 		
@@ -161,13 +167,20 @@ public class JRPGMenu : MonoBehaviour
 		target.Add(characterDataContainer);
 	}
 
+	void DeactivateAllCharacters()
+	{
+		for(int i= 0;i < buttonlist.Count;i++)
+		{
+			buttonlist[i].SetEnabled(false);
+		}
+	}
+
 	bool CheckAllCharactersUsed()
 	{
 		for(int i = 0; i < partyManager.characterlist.Count; i++)
 		{
 			if (!partyManager.characterlist[i].turnOver)
 			{
-				Debug.Log($"{partyManager.characterlist[i].characterName} hasn't gone!");
 				return false;
 			}
 		}
