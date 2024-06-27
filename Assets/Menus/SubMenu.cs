@@ -16,6 +16,7 @@ public class SubMenu : MonoBehaviour
 	ScrollView scrollMenu;
 	Sprite selectorSprite;
 	public List<Character> characterTurnComplete;
+	public Action Reset;
 
 	public SubMenu(UIDocument document, Sprite selectorSprite)
 	{
@@ -37,6 +38,7 @@ public class SubMenu : MonoBehaviour
 		subMenuContainer.Add(scrollMenu);
 
 		document.rootVisualElement.Add(subMenuContainer);
+
 	}
 
 	public void Reveal()
@@ -69,6 +71,7 @@ public class SubMenu : MonoBehaviour
 		newContainer.AddToClassList("buttonContainer");
 
 		var newButton = new UnityEngine.UIElements.Button();
+		var action = Reset;
 
 		newButton.text = skill.skillName;
 		newButton.clicked += () =>
@@ -76,11 +79,9 @@ public class SubMenu : MonoBehaviour
 			//hides the previous men
 			newButton.parent.parent.visible = false;
 			skill.ActionSkill();
-			Reset.Invoke();
-			//How do I get this to trigger Reset Menus in JRPGMenu? 
-
 
 			character.turnOver = true;
+			action.Invoke();
 		};
 
 
@@ -95,7 +96,5 @@ public class SubMenu : MonoBehaviour
 
 		target.Add(newContainer);
 	}
-
-	public Action Reset;
 
 }

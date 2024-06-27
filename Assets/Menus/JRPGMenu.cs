@@ -30,7 +30,6 @@ public class JRPGMenu : MonoBehaviour
 	private void Start()
 	{
 		StartCoroutine(Generate());
-		submenu.Reset += ResetButtons;
 	}
 
 
@@ -47,8 +46,6 @@ public class JRPGMenu : MonoBehaviour
 			ResetButtons();
 		}
 	}
-
-	public delegate void ResetMenus();
 
 	/// <summary>
 	/// Cancels the button choice & allows for a different option to be selected.
@@ -86,6 +83,7 @@ public class JRPGMenu : MonoBehaviour
 		actionMenu.Hide();
 
 		submenu = new SubMenu(document, selectorSprite);
+		submenu.Reset += ResetButtons;
 		submenu.Hide();
 
 		GenerateCharaterList(partyManager.characterlist, leftButtonContainer);
