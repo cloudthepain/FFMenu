@@ -52,7 +52,6 @@ public class JRPGMenu : MonoBehaviour
 	/// </summary>
 	void ResetButtons()
 	{
-		Debug.Log("Call Me any time");
 		submenu.Hide();
 		actionMenu.Hide();
 		if (CheckAllCharactersUsed()) { return; }
