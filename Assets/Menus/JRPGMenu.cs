@@ -201,21 +201,18 @@ public class JRPGMenu : MonoBehaviour
 	#region
 	void CreateStatusBars(VisualElement target)
 	{
+		//If a new container is to be added to track a stat value, add it here.
 		var healthContainer = CreateBarContainer("health");
 		var manaContainer = CreateBarContainer("mana");
-		var xpContainer = CreateBarContainer("xp");
 
-
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < partyManager.characterlist.Count; i++)
 		{
-			CreateProgressBar(100, healthContainer);
-			CreateProgressBar(200, manaContainer);
-			CreateProgressBar(300, xpContainer);
+			CreateProgressBar(partyManager.characterlist[i].health, partyManager.characterlist[i].maxHealth, healthContainer);
+			CreateProgressBar(partyManager.characterlist[i].mana, partyManager.characterlist[i].maxMana, manaContainer);
 		}
 
 		target.Add(healthContainer);
 		target.Add(manaContainer);
-		target.Add(xpContainer);
 	}
 
 	VisualElement CreateBarContainer(string value)
@@ -228,19 +225,20 @@ public class JRPGMenu : MonoBehaviour
 		return barContainer;
 	}
 
-	void CreateProgressBar(int value, VisualElement target)
+	void CreateProgressBar(float characterStat, float charactermaxStat,VisualElement target)
 	{
 		var container = Create("progress-bar-container");
 		target.Add(container);
 
 		var barNumber = new UnityEngine.UIElements.Label();
 		barNumber.AddToClassList("bar-number");
-		barNumber.text = $"{value.ToString()} / {value.ToString()}";
+		barNumber.text = $"{characterStat} / {charactermaxStat}";
 		container.Add(barNumber);
 
 		var progressBar = new UnityEngine.UIElements.ProgressBar();
 		progressBar.AddToClassList("progress-bar");
-		progressBar.value = 100;
+		float percentage = (characterStat / charactermaxStat) *100;
+		progressBar.value = percentage;
 		container.Add(progressBar);
 
 		target.Add(container);
