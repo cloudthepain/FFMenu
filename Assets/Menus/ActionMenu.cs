@@ -25,6 +25,7 @@ public class ActionMenu : MonoBehaviour
 	{
 		generatedMenuList = new VisualElement();
 		generatedMenuList.AddToClassList("menu-list-container");
+		generatedMenuList.visible = false;
 
 		document.rootVisualElement.Add(generatedMenuList);
 	}
