@@ -8,6 +8,7 @@ using UnityEngine.Events;
 using static UnityEditor.Progress;
 using System.Linq;
 using UnityEngine.TextCore.Text;
+using static UnityEngine.GraphicsBuffer;
 
 public class JRPGMenu : MonoBehaviour
 {
@@ -26,6 +27,10 @@ public class JRPGMenu : MonoBehaviour
 	VisualElement menuContainer;
 	VisualElement leftButtonContainer;
 	VisualElement rightmenuContainer;
+	VisualElement labelContainer;
+
+	VisualElement EnemyContainer;
+
 
 	private void Start()
 	{
@@ -43,14 +48,14 @@ public class JRPGMenu : MonoBehaviour
 	{
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
-			ResetButtons();
+			GenerateEnemyList();
 		}
 	}
 
 	/// <summary>
 	/// Cancels the button choice & allows for a different option to be selected.
 	/// </summary>
-	void ResetButtons()
+	public void ResetButtons()
 	{
 		submenu.Hide();
 		actionMenu.Hide();
@@ -77,16 +82,16 @@ public class JRPGMenu : MonoBehaviour
 
 		partyManager = new PartyManager();
 
-		actionMenu = new ActionMenu(document);
+		actionMenu = new ActionMenu(document, this);
 		actionMenu.GenerateMenuList();
 		actionMenu.Hide();
 
-		submenu = new SubMenu(document, selectorSprite);
+		submenu = new SubMenu(document, selectorSprite, this);
 		submenu.Reset += ResetButtons;
 		submenu.Hide();
 
 		GenerateCharaterList(partyManager.characterlist, leftButtonContainer);
-		GenerateCharacterBarsContainer(name, rightmenuContainer);
+		GenerateCharacterBarsContainer(rightmenuContainer);
 	}
 
 	//Create
@@ -184,14 +189,14 @@ public class JRPGMenu : MonoBehaviour
 		return true;
 	}
 
-	void GenerateCharacterBarsContainer(string value, VisualElement target)
+	void GenerateCharacterBarsContainer(VisualElement target)
 	{
 		var characterBarsContainer = Create("character-bars-container");
 
-		var labelcontainer = Create("label-container");
-		characterBarsContainer.Add(labelcontainer);
+		labelContainer = Create("label-container");
+		characterBarsContainer.Add(labelContainer);
 
-		CreateStatusBars(labelcontainer);
+		CreateStatusBars();
 
 		target.Add(characterBarsContainer);
 	}
@@ -199,7 +204,7 @@ public class JRPGMenu : MonoBehaviour
 
 	//Progress Bars
 	#region
-	void CreateStatusBars(VisualElement target)
+	void CreateStatusBars()
 	{
 		//If a new container is to be added to track a stat value, add it here.
 		var healthContainer = CreateBarContainer("health");
@@ -211,8 +216,8 @@ public class JRPGMenu : MonoBehaviour
 			CreateProgressBar(partyManager.characterlist[i].mana, partyManager.characterlist[i].maxMana, manaContainer);
 		}
 
-		target.Add(healthContainer);
-		target.Add(manaContainer);
+		labelContainer.Add(healthContainer);
+		labelContainer.Add(manaContainer);
 	}
 
 	VisualElement CreateBarContainer(string value)
@@ -244,5 +249,48 @@ public class JRPGMenu : MonoBehaviour
 		target.Add(container);
 	}
 	#endregion
+
+	public void GenerateEnemyList()
+	{
+		List<Character> enemies = partyManager.enemyList;
+		rightmenuContainer.Clear();
+		var characterlistlabel = new UnityEngine.UIElements.Label();
+		characterlistlabel.text = "chars";
+		characterlistlabel.AddToClassList("character-list-label");
+		rightmenuContainer.Add(characterlistlabel);
+
+		for (int i = 0; i < enemies.Count; i++)
+		{
+			GenerateEnemyButton(enemies[i]);
+		}
+	}
+
+	public void GenerateEnemyButton(Character character)
+	{
+		var characterDataContainer = Create("value-bar-container");
+
+		var characterButton = new UnityEngine.UIElements.Button();
+		characterButton.text = character.characterName;
+
+		var Charchar = character;
+
+		characterButton.clicked += () =>
+		{
+			submenu.currentSkill.ActionSkill(character);
+			submenu.currentCharacter.turnOver = true;
+
+			rightmenuContainer.Clear();
+			GenerateCharacterBarsContainer(rightmenuContainer);
+
+			ResetButtons();
+		};
+
+		characterButton.AddToClassList("character-button");
+
+		characterDataContainer.Add(characterButton);
+		buttonlist.Add(characterButton);
+
+		rightmenuContainer.Add(characterDataContainer);
+	}
 }
 

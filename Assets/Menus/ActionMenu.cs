@@ -12,11 +12,13 @@ public class ActionMenu : MonoBehaviour
 {
 	private UIDocument document;
 	VisualElement generatedMenuList;
+	JRPGMenu rootmenu;
 
-	public ActionMenu(UIDocument document)
+	public ActionMenu(UIDocument document, JRPGMenu rootMenu)
 	{
 		this.document = document;
 		GenerateMenuList();
+		rootmenu = rootMenu;
 	}
 
 

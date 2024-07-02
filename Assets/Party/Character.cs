@@ -29,9 +29,10 @@ public class Character : MonoBehaviour
 		MenuActions magic = new MenuActions("Magic");
 		MenuActions flee = new MenuActions("Flee");
 
-		Skill fireball = new Skill("fireball");
-		Skill wish = new Skill("wish");
-		Skill run = new Skill("Run");
+		Skill fireball = new Skill("fireball", TargetType.SingleEnemy);
+		Skill heal = new Skill("heal", TargetType.SingleAlly);
+		Skill wish = new Skill("wish", TargetType.AllEnemies);
+		Skill run = new Skill("Run", TargetType.Self);
 
 		turnOver = false;
 

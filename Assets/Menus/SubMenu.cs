@@ -17,12 +17,17 @@ public class SubMenu : MonoBehaviour
 	Sprite selectorSprite;
 	public List<Character> characterTurnComplete;
 	public Action Reset;
+	JRPGMenu rootmenu;
+	public Character currentCharacter;
+	public Skill currentSkill;
 
-	public SubMenu(UIDocument document, Sprite selectorSprite)
+
+	public SubMenu(UIDocument document, Sprite selectorSprite, JRPGMenu rootMenu)
 	{
 		this.document = document;
 		this.selectorSprite = selectorSprite;
 		GenerateSubMenu();
+		rootmenu = rootMenu;
 	}
 
 	public void GenerateSubMenu()
@@ -76,12 +81,11 @@ public class SubMenu : MonoBehaviour
 		newButton.text = skill.skillName;
 		newButton.clicked += () =>
 		{
+			currentCharacter = character;
+			currentSkill = skill;
 			//hides the previous men
 			newButton.parent.parent.visible = false;
-			skill.ActionSkill();
-
-			character.turnOver = true;
-			action.Invoke();
+			rootmenu.GenerateEnemyList();
 		};
 
 

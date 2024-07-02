@@ -6,13 +6,26 @@ public class Skill : MonoBehaviour
 {
 	public string skillName;
 
-	public Skill(string skill)
+	public TargetType target;
+
+	public Skill(string skill, TargetType target)
 	{
 		skillName = skill;
 	}
 
-	public void ActionSkill()
+	public void ActionSkill(Character target)
 	{
-		Debug.Log($"Skill {skillName}");
+		Debug.Log($"{skillName} was used against {target.characterName}");
 	}
+
+}
+
+public enum TargetType
+{
+	SingleEnemy,
+	AllEnemies,
+	SingleAlly,
+	AllAllies,
+	Self
+
 }
